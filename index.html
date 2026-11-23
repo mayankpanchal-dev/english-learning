@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#173b8f"><link rel="manifest" href="manifest.json">
+<title>My English Journey</title>
+<style>
+:root{--blue:#173b8f;--yellow:#ffdc35;--ink:#17233d;--muted:#667085;--bg:#f4f7fc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,sans-serif}
+header{background:var(--blue);color:white;padding:22px 18px 26px;border-radius:0 0 24px 24px}
+header h1{margin:0;font-size:25px}header p{margin:6px 0 0;color:#e8edff}
+main{max-width:760px;margin:auto;padding:16px}.card{background:white;border-radius:18px;padding:17px;margin:12px 0;box-shadow:0 3px 14px #1b37620d}
+h2{font-size:19px;margin:0 0 12px}.muted{color:var(--muted);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#f1f5ff;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:23px;color:var(--blue)}
+button,select,input{font:inherit}button{border:0;border-radius:12px;background:var(--blue);color:white;padding:12px 15px;font-weight:650;cursor:pointer}
+button.secondary{background:#eaf0ff;color:var(--blue)}button.yellow{background:var(--yellow);color:#19213a}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}.tabs button{white-space:nowrap;padding:10px 12px}.tabs button.active{background:var(--yellow);color:#17233d}
+.word{font-size:27px;font-weight:800;color:var(--blue)}.guj{font-size:18px;margin:5px 0}.example{background:#f5f7fb;padding:12px;border-radius:12px;margin-top:10px}
+input[type=text]{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;margin:8px 0}
+.option{display:block;width:100%;text-align:left;margin:8px 0;background:#f1f5ff;color:var(--ink);border:1px solid #dce5ff}
+.option.selected{border:2px solid var(--blue)}.feedback{padding:10px;border-radius:10px;margin-top:10px}
+.good{background:#e8f8ee;color:#176438}.bad{background:#fff1e8;color:#8c3b12}
+progress{width:100%;height:12px;accent-color:var(--blue)}footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<header><h1>🌱 My English Journey</h1><p>ગુજરાતીથી English શીખવાની શરૂઆત — રોજ થોડું, દરરોજ આગળ!</p></header>
+<main>
+<section class="card">
+<h2>નમસ્તે! આજે શીખવાનું શરૂ કરીએ.</h2>
+<p class="muted">તમારી પ્રગતિ આ ફોનના browser માં save થશે.</p>
+<div class="stats">
+ <div class="stat"><b id="days">0</b><span class="muted">દિવસ શીખ્યા</span></div>
+ <div class="stat"><b id="done">0</b><span class="muted">શબ્દો શીખ્યા</span></div>
+ <div class="stat"><b id="score">0%</b><span class="muted">Quiz score</span></div>
+</div>
+<p class="muted">આજની પ્રગતિ</p><progress id="progress" value="0" max="5"></progress>
+</section>
+<nav class="tabs">
+<button class="active" data-tab="words">શબ્દો</button><button data-tab="listen">સાંભળો</button><button data-tab="speak">બોલો</button><button data-tab="grammar">Grammar</button><button data-tab="write">લખો</button><button data-tab="quiz">Test</button>
+</nav>
+<section id="panel" class="card"></section>
+<section class="card"><h2>આજનું 1 કલાકનું લક્ષ્ય</h2>
+<p>10 મિનિટ શબ્દો · 10 મિનિટ સાંભળવું · 15 મિનિટ બોલવું · 15 મિનિટ Grammar · 10 મિનિટ લખવું અને ટેસ્ટ.</p>
+<div class="actions"><button class="yellow" onclick="markTask()">આજનો અભ્યાસ પૂર્ણ કર્યો</button><button class="secondary" onclick="resetProgress()">પ્રગતિ Reset</button></div>
+<p class="muted" id="taskmsg"></p></section>
+</main><footer>Made for Gujarati beginners · Free starter version</footer>
+<script>
+const lessons=[
+ {en:"Hello",gu:"નમસ્તે",ex:"Hello, how are you?",meaning:"નમસ્તે, તમે કેમ છો?"},
+ {en:"Thank you",gu:"આભાર",ex:"Thank you very much.",meaning:"તમારો ખૂબ ખૂબ આભાર."},
+ {en:"Water",gu:"પાણી",ex:"I drink water.",meaning:"હું પાણી પીઉં છું."},
+ {en:"Book",gu:"ચોપડી / પુસ્તક",ex:"This is my book.",meaning:"આ મારું પુસ્તક છે."},
+ {en:"House",gu:"ઘર",ex:"This is my house.",meaning:"આ મારું ઘર છે."},
+ {en:"Food",gu:"ખોરાક / જમવાનું",ex:"The food is good.",meaning:"જમવાનું સારું છે."},
+ {en:"Please",gu:"મહેરબાની કરીને",ex:"Please help me.",meaning:"મહેરબાની કરીને મને મદદ કરો."},
+ {en:"Good morning",gu:"સુપ્રભાત",ex:"Good morning, everyone.",meaning:"બધાને સુપ્રભાત."}
+];
+const qs=[
+ {q:"'પાણી' ને English માં શું કહેવાય?",opts:["Book","Water","House"],a:"Water",why:"Water એટલે પાણી."},
+ {q:"'Thank you' નો અર્થ શું થાય?",opts:["આભાર","નમસ્તે","પાણી"],a:"આભાર",why:"Thank you એટલે આભાર."},
+ {q:"ખાલી જગ્યા भरो: I ___ happy.",opts:["am","is","are"],a:"am",why:"I સાથે am વપરાય છે."},
+ {q:"'આ મારું પુસ્તક છે' નું સાચું વાક્ય કયું?",opts:["This is my book.","I book my.","Book is I."],a:"This is my book.",why:"This is my book = આ મારું પુસ્તક છે."}
+];
+let state=JSON.parse(localStorage.getItem("engJourney")||'{"learned":[],"days":[],"score":0,"tasks":[]}');
+let tab="words",idx=0,selected=null;
+function save(){localStorage.setItem("engJourney",JSON.stringify(state));stats()}
+function stats(){document.getElementById("days").textContent=state.days.length;document.getElementById("done").textContent=state.learned.length;document.getElementById("score").textContent=state.score+"%";document.getElementById("progress").value=state.tasks.includes(new Date().toDateString())?5:0}
+function render(){
+ const p=document.getElementById("panel"); selected=null;
+ if(tab==="words"){let w=lessons[idx%lessons.length];p.innerHTML=`<h2>આજના English શબ્દો</h2><div class="muted">શબ્દ ${idx+1} / ${lessons.length}</div><div class="word">${w.en}</div><div class="guj">${w.gu}</div><div class="example"><b>${w.ex}</b><br>${w.meaning}</div><div class="actions"><button onclick="speak('${w.en}')">🔊 સાંભળો</button><button class="yellow" onclick="learn('${w.en}')">શીખી લીધું</button><button class="secondary" onclick="idx++;render()">આગળ →</button></div>`}
+ if(tab==="listen"){let w=lessons[idx%lessons.length];p.innerHTML=`<h2>Listening Practice</h2><p>વાક્ય ધ્યાનથી સાંભળો અને ગુજરાતી અર્થ સમજો.</p><div class="word">${w.ex}</div><p>${w.meaning}</p><button onclick="speak('${w.ex}')">🔊 English સાંભળો</button><div class="actions"><button class="secondary" onclick="idx++;render()">બીજું વાક્ય →</button></div>`}
+ if(tab==="speak"){let w=lessons[idx%lessons.length];p.innerHTML=`<h2>Speaking Practice</h2><p>આ વાક્ય 3 વાર બોલવાનો પ્રયત્ન કરો.</p><div class="word">${w.ex}</div><p>${w.meaning}</p><div class="actions"><button onclick="speak('${w.ex}')">🔊 પહેલાં સાંભળો</button><button class="yellow" onclick="record()">🎙️ બોલો</button></div><p id="heard" class="muted">માઇક્રોફોન દબાવીને English માં બોલો. Browser પરવાનગી માંગે તો Allow કરો.</p><button class="secondary" onclick="idx++;render()">આગળ →</button>`}
+ if(tab==="grammar"){p.innerHTML=`<h2>Grammar 01: Am / Is / Are</h2><p><b>Am</b> — I સાથે વાપરો.</p><div class="example">I am happy. = હું ખુશ છું.</div><p><b>Is</b> — He, She, It અથવા એક વ્યક્તિ/વસ્તુ સાથે.</p><div class="example">She is happy. = તે ખુશ છે.</div><p><b>Are</b> — You, We, They સાથે.</p><div class="example">You are kind. = તમે દયાળુ છો.</div><button onclick="speak('I am happy. She is happy. You are kind.')">🔊 ઉદાહરણ સાંભળો</button>`}
+ if(tab==="write"){p.innerHTML=`<h2>Writing Practice</h2><p>આ વાક્ય English માં લખો:</p><div class="word">હું ખુશ છું.</div><input id="answer" type="text" placeholder="Type your English sentence"><button onclick="checkWriting()">જવાબ તપાસો</button><p id="writefeedback"></p><p class="muted">સાચો જવાબ: I am happy.</p>`}
+ if(tab==="quiz"){p.innerHTML=`<h2>Daily Beginner Test</h2><p id="qcount">પ્રશ્ન ${idx%qs.length+1} / ${qs.length}</p><b>${qs[idx%qs.length].q}</b><div id="opts"></div><div id="qfeedback"></div><button class="secondary" onclick="idx++;render()">આગળનો પ્રશ્ન →</button>`;qs[idx%qs.length].opts.forEach(o=>{let b=document.createElement("button");b.className="option";b.textContent=o;b.onclick=()=>answerQuiz(o);document.getElementById("opts").appendChild(b)})}
+}
+function speak(t){if(!("speechSynthesis"in window)){alert("આ browser માં બોલીને સંભળાવવાની સુવિધા ઉપલબ્ધ નથી.");return}let u=new SpeechSynthesisUtterance(t);u.lang="en-IN";speechSynthesis.speak(u)}
+function learn(w){if(!state.learned.includes(w))state.learned.push(w);save();alert("સરસ! શબ્દ તમારી પ્રગતિમાં ઉમેરાયો.")}
+function record(){let R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){document.getElementById("heard").textContent="આ browser માં voice recognition ઉપલબ્ધ નથી. વાક્ય સાંભળીને જાતે બોલવાની પ્રેક્ટિસ કરો.";return}let r=new R();r.lang="en-IN";r.onresult=e=>document.getElementById("heard").textContent="તમે કહ્યું: "+e.results[0][0].transcript;r.onerror=()=>document.getElementById("heard").textContent="માઇક્રોફોન ઉપલબ્ધ નથી. Permission તપાસો.";r.start()}
+function checkWriting(){let v=document.getElementById("answer").value.trim().toLowerCase().replace(/[.!?]/g,"");let el=document.getElementById("writefeedback");el.textContent=v==="i am happy"?"ખૂબ સરસ! સાચો જવાબ.":"ફરી પ્રયત્ન કરો. Hint: I + am + happy.";el.className="feedback "+(v==="i am happy"?"good":"bad")}
+function answerQuiz(o){let q=qs[idx%qs.length],el=document.getElementById("qfeedback");let ok=o===q.a;if(ok)state.score=Math.min(100,state.score+25);el.innerHTML=`<div class="feedback ${ok?"good":"bad"}">${ok?"સાચો જવાબ!":"ફરી પ્રયત્ન કરો."} ${q.why}</div>`;document.querySelectorAll(".option").forEach(b=>b.disabled=true);save()}
+function markTask(){let d=new Date().toDateString();if(!state.tasks.includes(d))state.tasks.push(d);if(!state.days.includes(d))state.days.push(d);save();document.getElementById("taskmsg").textContent="શાબાશ! આજનો અભ્યાસ પૂર્ણ તરીકે save થયો."}
+function resetProgress(){if(confirm("શું ખરેખર બધી પ્રગતિ કાઢવી છે?")){state={learned:[],days:[],score:0,tasks:[]};save();render()}}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");tab=b.dataset.tab;idx=0;render()});
+stats();render();if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script></body></html>
